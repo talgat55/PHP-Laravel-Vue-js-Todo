@@ -4,20 +4,11 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\api\v1\Groups;
+use App\Models\api\v1\Todo;
 use Illuminate\Http\Request;
 
-class GroupsController extends Controller
+class TodoController extends Controller
 {
-    /**
-     * Show the list items
-     */
-    public function index()
-    {
-        $items =  Groups::all();
-        return response()
-            ->json($items);
-    }
-
     /**
      * * Create new item
      * @param Request $request
@@ -26,13 +17,18 @@ class GroupsController extends Controller
     public function create(Request $request)
     {
         if ($request->isMethod('post')) {
-            $model = Groups::create($request->all());
-            $model->save();
-            return response('success', 201);
+
+            try {
+                $model = Todo::create($request->all());
+                $model->save();
+                Groups::saveById($request->get('group_id'),$model->id);
+                return response('success', 201);
+            }catch (\Exception $e){
+                return response($e, 400);
+            }
+
         }
 
     }
-
-
 
 }
